@@ -35,12 +35,6 @@ PublisherZMQ::PublisherZMQ(TreeNode* root_node, int max_msg_per_second)
         throw std::logic_error("Only one instance of PublisherZMQ shall be created");
     }
 
-    flatbuffers::FlatBufferBuilder builder(1024);
-    CreateFlatbuffersBehaviorTree(builder, root_node);
-
-    tree_buffer_.resize(builder.GetSize());
-    memcpy(tree_buffer_.data(), builder.GetBufferPointer(), builder.GetSize());
-
     zmq_publisher_.bind("tcp://*:1666");
     zmq_server_.bind("tcp://*:1667");
 
@@ -49,17 +43,24 @@ PublisherZMQ::PublisherZMQ(TreeNode* root_node, int max_msg_per_second)
 
     active_server_ = true;
 
-    thread_ = std::thread([this]() {
+    thread_ = std::thread([this, root_node]() {
         while (active_server_)
         {
+            flatbuffers::FlatBufferBuilder builder(1024);
+            CreateFlatbuffersBehaviorTree(builder, root_node);
+
+            std::vector<uint8_t> tree_buffer;
+            tree_buffer.resize(builder.GetSize());
+            memcpy(tree_buffer.data(), builder.GetBufferPointer(), builder.GetSize());
+
             zmq::message_t req;
             try
             {
                 bool received = zmq_server_.recv(&req);
                 if( received )
                 {
-                    zmq::message_t reply(tree_buffer_.size());
-                    memcpy(reply.data(), tree_buffer_.data(), tree_buffer_.size());
+                    zmq::message_t reply(tree_buffer.size());
+                    memcpy(reply.data(), tree_buffer.data(), tree_buffer.size());
                     zmq_server_.send(reply);
                 }
             }
