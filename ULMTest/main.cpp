@@ -57,8 +57,14 @@ int main(int argc, char* argv[])
     BT::PublisherZMQ publisher_zmq(root_node.get());
 
     std::cout << "Start execution" << std::endl;
-    while (1) {
-        root_node->executeTick();
+
+    BT::NodeStatus status = BT::NodeStatus::IDLE;
+
+    while (status != BT::NodeStatus::SUCCESS)
+    {
+        std::cout << "------- Tick ------"<< std::endl;
+        status = root_node->executeTick();
+        std::this_thread::sleep_for( std::chrono::milliseconds(200) );
     }
 }
 

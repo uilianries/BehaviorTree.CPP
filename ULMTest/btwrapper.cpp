@@ -21,7 +21,7 @@ BT::NodeStatus BTWrapper::deactivateJoystick()
 
 BT::NodeStatus BTWrapper::isBatteryOK()
 {
-    //TODO
+    std::cout << "checking batteries... " << std::endl;
     return BT::NodeStatus::SUCCESS;
 }
 
@@ -51,32 +51,51 @@ MoveBaseToGoal::MoveBaseToGoal(const std::string &name, const BT::NodeParameters
 
 BT::NodeStatus MoveBaseToGoal::tick()
 {
-    char buffer[1024];
-    sprintf(buffer, "(plan ((tcb-approach-location %s)))\n",
-                       getParam<std::string>("goal").c_str() );
-
-    std::cout << "Sending: " << std::string(buffer) << std::endl;
-    if( connection_.send(buffer))
+    // called when the action starts
+    if( isHalted() )
     {
-        setStatus( BT::NodeStatus::RUNNING);
+        char buffer[1024];
+        sprintf(buffer, "(plan ((tcb-approach-location %s)))\n",
+                           getParam<std::string>("goal").c_str() );
 
-        std::string reply;
-        if( connection_.recv(&reply))
+        std::cout << "Sending: " << std::string(buffer) << std::endl;
+        if( connection_.send(buffer))
         {
-            std::cout << "Received: " << reply << std::endl;
-            if( reply.find("SUCCESS") != std::string::npos )
-            {
-                return BT::NodeStatus::SUCCESS;
-            }
+            return BT::NodeStatus::RUNNING;
+        }
+        else {
+            return BT::NodeStatus::FAILURE;
         }
     }
-    // failure if either send, recv of string::find failed
-    return BT::NodeStatus::FAILURE;
+    else {
+        std::string reply;
+        try{
+            if( connection_.recv(&reply))
+            {
+                std::cout << "Received: " << reply << std::endl;
+                if( reply.find("SUCCESS") != std::string::npos )
+                {
+                    return BT::NodeStatus::SUCCESS;
+                }
+                else{
+                    return BT::NodeStatus::FAILURE;
+                }
+            }
+            return BT::NodeStatus::RUNNING;
+        }
+        catch(std::runtime_error& err)
+        {
+            std::cout << "Failed communication> " << err.what() << std::endl;
+            return BT::NodeStatus::FAILURE;
+        }
+    }
 }
 
 void MoveBaseToGoal::halt()
 {
-    //TODO
+    connection_.send("(abort)");
+    std::string reply;
+    connection_.recv(&reply);
 }
 
 void MoveBaseToGoal::Register(BT::BehaviorTreeFactory &factory, AsioSession &connection)
