@@ -117,6 +117,8 @@ elseif(GTEST_FOUND)
 		
 endif()
 
+add_subdirectory(ULMTest)
+
 ######################################################
 # COMPILING EXAMPLES and TOOLS
 ######################################################
