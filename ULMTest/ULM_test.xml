@@ -1,0 +1,31 @@
+<root>
+    <!--------------------------------------->
+    <BehaviorTree ID="BehaviorTree">
+            <Fallback>
+                <Sequence name="CheckBatteries">
+                    <Condition ID="IsBatteryLevelOK"/>
+                    <SequenceStar>
+                        <Action ID="MoveBaseToGoal" goal="home"/>
+                        <Action ID="MoveBaseToGoal" goal="one"/>
+                    </SequenceStar>
+                </Sequence>
+                <Sequence name="BatteriesEmpty">
+                    <Action ID="MoveBaseToGoal" goal="four"/>
+                    <Action ID="PlugToChargeStation"/>
+                </Sequence>
+            </Fallback>
+    </BehaviorTree>
+    <!--------------------------------------->
+    <TreeNodesModel>
+        <Action ID="ActivateJoystickNavigation"/>
+        <Action ID="DisableJoystickNavigation"/>
+        <Condition ID="IsBatteryLevelOK"/>
+        <Condition ID="IsEmergencySwitchOFF"/>
+        <Action ID="MoveBaseToGoal">
+            <Parameter label="goal" type="Combo" default="home;one;two;three;four"/>
+        </Action>
+        <Action ID="PlugToChargeStation"/>
+    </TreeNodesModel>
+    <!--------------------------------------->
+</root>
+
