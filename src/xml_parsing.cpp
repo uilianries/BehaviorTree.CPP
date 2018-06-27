@@ -379,106 +379,109 @@ TreeNodePtr BT::XMLParser::treeParsing(const XMLElement *root_element,
     return root;
 }
 
-std::string XMLWriter::writeXML(const TreeNode *root_node, bool compact_representation) const
-{
-    using namespace tinyxml2;
+//std::string WriteXML(const TreeNode* root_node,
+//                     const BehaviorTreeFactory* factory,
+//                     bool compact_representation )
+//{
+//    using namespace tinyxml2;
 
-    XMLDocument doc;
+//    XMLDocument doc;
 
-    XMLElement* rootXML = doc.NewElement( "root");
-    doc.InsertFirstChild(rootXML);
+//    XMLElement* rootXML = doc.NewElement( "root");
+//    doc.InsertFirstChild(rootXML);
 
-    if( root_node )
-    {
-        XMLElement* bt_root = doc.NewElement("BehaviorTree");
-        rootXML->InsertEndChild(bt_root);
+//    XMLElement* model_root = doc.NewElement("TreeNodesModel");
+//    rootXML->InsertEndChild(model_root);
 
-        std::function<void(const TreeNode*, XMLElement* parent)> recursiveVisitor;
+//    std::set<std::string,std::string> ID_in_model;
 
-        recursiveVisitor = [&recursiveVisitor, &doc, compact_representation, this]
-                (const TreeNode* node, XMLElement* parent) -> void
-        {
-            std::string node_type = toStr(node->type());
-            std::string node_ID = node->registrationName();
-            std::string node_name = node->name();
+//    if(factory)
+//    {
+//        for( auto& model: factory->models())
+//        {
+//            if( model.type == NodeType::CONTROL)
+//            {
+//                continue;
+//            }
+//            XMLElement* element = doc.NewElement( toStr(model.type) );
+//            element->SetAttribute( "ID", model.registration_ID.c_str() );
 
+//            for( auto& param: model.required_parameters)
+//            {
+//                XMLElement* param_el =  doc.NewElement( "Parameter" );
+//                param_el->SetAttribute("label",   param.first.c_str() );
+//                param_el->SetAttribute("default", param.second.c_str() );
+//                element->InsertEndChild(param_el);
+//            }
 
-            if( node->type() == NodeType::CONTROL)
-            {
-                node_type = node_ID;
-            }
-            else if(compact_representation)
-            {
-                for(const auto& model: factory_.models() )
-                {
-                    if( model.registration_ID == node_ID)
-                    {
-                       node_type = node_ID;
-                       break;
-                    }
-                }
-            }
+//            ID_in_model.insert(  model.registration_ID );
+//            model_root->InsertEndChild(element);
+//        }
+//    }
+//    else if( root_node ) {
+//        applyRecursiveVisitor(root_node, []());
 
-            XMLElement* element = doc.NewElement( node_type.c_str() );
-            if( node_type != node_ID && !node_ID.empty())
-            {
-                element->SetAttribute("ID", node_ID.c_str());
-            }
-            if( node_type != node_name && !node_name.empty() && node_name != node_ID)
-            {
-                element->SetAttribute("name", node_name.c_str());
-            }
+//    }
+//    else{
+//        throw std::invalid_argument("root_node and factory pointers can't be both nullptr").
+//    }
 
-            for(const auto& param: node->initializationParameters())
-            {
-                element->SetAttribute( param.first.c_str(), param.second.c_str() );
-            }
+//    if( root_node )
+//    {
+//        XMLElement* bt_root = doc.NewElement("BehaviorTree");
+//        rootXML->InsertEndChild(bt_root);
 
-            parent->InsertEndChild(element);
+//        std::function<void(const TreeNode*, XMLElement* parent)> recursiveVisitor;
 
-            if (auto control = dynamic_cast<const BT::ControlNode*>(node))
-            {
-                for (const auto& child : control->children())
-                {
-                    recursiveVisitor( static_cast<const TreeNode*>(child), element);
-                }
-            }
-            else if (auto decorator = dynamic_cast<const BT::DecoratorNode*>(node))
-            {
-                recursiveVisitor(decorator->child(), element);
-            }
-        };
+//        recursiveVisitor = [&recursiveVisitor, &doc, compact_representation, factory]
+//                (const TreeNode* node, XMLElement* parent) -> void
+//        {
+//            std::string node_type = toStr(node->type());
+//            std::string node_ID = node->registrationName();
+//            std::string node_name = node->name();
 
-        recursiveVisitor(root_node, bt_root);
-    }
-    //--------------------------
+//            if( node->type() == NodeType::CONTROL ||
+//                (compact_representation && ID_in_model.count(node_ID) > 0))
+//            {
+//                node_type = node_ID;
+//            }
 
-    XMLElement* model_root = doc.NewElement("TreeNodesModel");
-    rootXML->InsertEndChild(model_root);
+//            XMLElement* element = doc.NewElement( node_type.c_str() );
+//            if( node_type != node_ID && !node_ID.empty())
+//            {
+//                element->SetAttribute("ID", node_ID.c_str());
+//            }
+//            if( node_type != node_name && !node_name.empty() && node_name != node_ID)
+//            {
+//                element->SetAttribute("name", node_name.c_str());
+//            }
 
-    for( auto& model: factory_.models())
-    {
-        if( model.type == NodeType::CONTROL)
-        {
-            continue;
-        }
-        XMLElement* element = doc.NewElement( toStr(model.type) );
-        element->SetAttribute( "ID", model.registration_ID.c_str() );
+//            for(const auto& param: node->initializationParameters())
+//            {
+//                element->SetAttribute( param.first.c_str(), param.second.c_str() );
+//            }
 
-        for( auto& param: model.required_parameters)
-        {
-            XMLElement* param_el =  doc.NewElement( "Parameter" );
-            param_el->SetAttribute("label",   param.first.c_str() );
-            param_el->SetAttribute("default", param.second.c_str() );
-            element->InsertEndChild(param_el);
-        }
+//            parent->InsertEndChild(element);
 
-        model_root->InsertEndChild(element);
-    }
+//            if (auto control = dynamic_cast<const BT::ControlNode*>(node))
+//            {
+//                for (const auto& child : control->children())
+//                {
+//                    recursiveVisitor( static_cast<const TreeNode*>(child), element);
+//                }
+//            }
+//            else if (auto decorator = dynamic_cast<const BT::DecoratorNode*>(node))
+//            {
+//                recursiveVisitor(decorator->child(), element);
+//            }
+//        };
 
-    tinyxml2::XMLPrinter printer;
-    doc.Print( &printer );
-    return std::string( printer.CStr(), printer.CStrSize()-1 );
-}
+//        recursiveVisitor(root_node, bt_root);
+//    }
+
+//    tinyxml2::XMLPrinter printer;
+//    doc.Print( &printer );
+//    return std::string( printer.CStr(), printer.CStrSize()-1 );
+//}
 
 }

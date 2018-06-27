@@ -100,8 +100,8 @@ int main(int argc, char** argv)
     std::cout << std::endl;
 
     std::cout << "\n-------\n";
-    XMLWriter writer(factory);
-    std::cout << writer.writeXML( root_node.get() ) << std::endl;
+    //XMLWriter writer(factory);
+    //std::cout << writer.writeXML( root_node.get() ) << std::endl;
 
     return 0;
 }

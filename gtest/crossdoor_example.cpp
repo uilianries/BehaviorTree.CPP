@@ -69,8 +69,8 @@ int main(int argc, char** argv)
     cross_door.CloseDoor();
 
     std::cout << "\n-------\n";
-    XMLWriter writer(factory);
-    std::cout << writer.writeXML( root_node.get(), false) << std::endl;
+    //XMLWriter writer(factory);
+    //std::cout << writer.writeXML( root_node.get(), false) << std::endl;
 
     std::cout << "---------------" << std::endl;
     root_node->executeTick();

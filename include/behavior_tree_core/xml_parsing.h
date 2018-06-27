@@ -35,20 +35,10 @@ class XMLParser
     const BehaviorTreeFactory& factory_;
 };
 
-class XMLWriter
-{
-public:
-    XMLWriter( const BehaviorTreeFactory& factory):
-        factory_(factory)
-    {}
 
-    std::string writeXML(const TreeNode* root_node, bool compact_representation = false) const;
-
-private:
-   const BehaviorTreeFactory& factory_;
-
-};
-
+std::string WriteXML(const TreeNode* root_node,
+                     const BehaviorTreeFactory* factory = nullptr,
+                     bool compact_representation = false);
 
 }
 
