@@ -34,12 +34,6 @@ class BuilderSettings(object):
         return os.getenv("CONAN_UPLOAD", "https://api.bintray.com/conan/facontidavide/conan")
 
     @property
-    def remotes(self):
-        """ cppzmq is not approved on Conan center yet
-        """
-        return os.getenv("CONAN_REMOTES", "https://api.bintray.com/conan/bincrafters/public-conan")
-
-    @property
     def upload_only_when_stable(self):
         """ Force to upload when running over tag branch
         """
@@ -78,7 +72,6 @@ if __name__ == "__main__":
         reference=settings.reference,
         channel=settings.channel,
         upload=settings.upload,
-        remotes=settings.remotes,
         upload_only_when_stable=settings.upload_only_when_stable,
         stable_branch_pattern=settings.stable_branch_pattern,
         login_username=settings.login_username,
