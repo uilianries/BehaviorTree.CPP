@@ -25,7 +25,6 @@ if(NOT USE_VENDORED_CPPZMQ)
 endif()
 
 add_executable(bt4_plugin_manifest         bt_plugin_manifest.cpp )
-target_link_libraries(bt4_plugin_manifest  ${BTCPP_LIBRARY} )
-target_link_libraries(bt4_plugin_manifest PRIVATE $<IF:$<TARGET_EXISTS:libzmq-static>,libzmq-static,libzmq>)
+target_link_libraries(bt4_plugin_manifest PRIVATE ${BTCPP_LIBRARY} $<IF:$<TARGET_EXISTS:libzmq-static>,libzmq-static,libzmq>)
 install(TARGETS bt4_plugin_manifest
         DESTINATION ${BTCPP_BIN_DESTINATION} )
